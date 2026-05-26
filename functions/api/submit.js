@@ -39,7 +39,10 @@ export async function onRequestPost(context) {
 }
 
 async function sendNotification(env, { cardNumber, firstName, city, foundWhere, message }) {
-  if (!env.RESEND_API_KEY) return;
+  if (!env.RESEND_API_KEY) {
+    console.error('[notify] RESEND_API_KEY not set — skipping email');
+    return;
+  }
 
   const from    = firstName ? `${firstName}${city ? ` from ${city}` : ''}` : city ? `Someone from ${city}` : 'Someone';
   const subject = `New note on card #${cardNumber}`;
@@ -53,19 +56,30 @@ async function sendNotification(env, { cardNumber, firstName, city, foundWhere, 
     `Approve or reject: https://youareloved.art/admin`,
   ].filter(l => l !== null).join('\n');
 
-  await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: 'You Are Loved <notifications@youareloved.art>',
-      to:   ['dkrupenn@gmail.com'],
-      subject,
-      text: body,
-    }),
-  });
+  try {
+    const res  = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'You Are Loved <notifications@youareloved.art>',
+        to:   ['dkrupenn@gmail.com'],
+        subject,
+        text: body,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      console.error('[notify] Resend error:', res.status, JSON.stringify(data));
+    } else {
+      console.log('[notify] Email sent, id:', data.id);
+    }
+  } catch (err) {
+    console.error('[notify] Fetch failed:', err.message);
+  }
 }
 
 function json(data, status = 200) {
