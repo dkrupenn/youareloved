@@ -29,10 +29,43 @@ export async function onRequestPost(context) {
        VALUES (?, ?, ?, ?, ?, 'pending')`
     ).bind(paddedNumber, firstName, city, foundWhere, message).run();
 
+    // Fire-and-forget — don't let email failure block the submission response
+    sendNotification(env, { cardNumber: paddedNumber, firstName, city, foundWhere, message });
+
     return json({ success: true });
   } catch (err) {
     return json({ error: 'Failed to save message' }, 500);
   }
+}
+
+async function sendNotification(env, { cardNumber, firstName, city, foundWhere, message }) {
+  if (!env.RESEND_API_KEY) return;
+
+  const from    = firstName ? `${firstName}${city ? ` from ${city}` : ''}` : city ? `Someone from ${city}` : 'Someone';
+  const subject = `New note on card #${cardNumber}`;
+  const body    = [
+    `Card: #${cardNumber}`,
+    `From: ${from}`,
+    foundWhere ? `Found: ${foundWhere}` : null,
+    ``,
+    message,
+    ``,
+    `Approve or reject: https://youareloved.art/admin`,
+  ].filter(l => l !== null).join('\n');
+
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'You Are Loved <notifications@youareloved.art>',
+      to:   ['dkrupenn@gmail.com'],
+      subject,
+      text: body,
+    }),
+  });
 }
 
 function json(data, status = 200) {
