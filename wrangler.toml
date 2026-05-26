@@ -1,0 +1,8 @@
+name = "youareloved"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "youareloved-db"
+database_id = "f5dc4a5b-368b-4b60-b78e-8c1068a2d78f"

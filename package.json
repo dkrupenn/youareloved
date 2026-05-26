@@ -1,0 +1,24 @@
+{
+  "name": "youareloved",
+  "version": "1.0.0",
+  "description": "Open-source website for the \"You Are Loved\" card project — laser-engraved aluminum cards spreading kindness, one stranger at a time.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "wrangler pages dev public --d1=DB",
+    "deploy": "wrangler pages deploy public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dkrupenn/youareloved.git"
+  },
+  "keywords": [],
+  "author": "Denis Krupennikov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dkrupenn/youareloved/issues"
+  },
+  "homepage": "https://youareloved.art",
+  "devDependencies": {
+    "wrangler": "^4.94.0"
+  }
+}

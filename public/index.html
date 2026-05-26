@@ -4,9 +4,71 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>You Are Loved</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <meta name="description" content="Small aluminum cards traveling the world, from stranger to stranger, carrying one simple message.">
+  <meta property="og:title" content="You Are Loved">
+  <meta property="og:description" content="Small aluminum cards traveling the world, from stranger to stranger, carrying one simple message.">
+  <meta property="og:url" content="https://youareloved.art">
 </head>
 <body>
-  <h1>You Are Loved</h1>
-  <p>Coming soon.</p>
+  <main>
+    <div class="home-hero">
+      <h1>You Are Loved</h1>
+      <p class="subtitle">Small aluminum cards traveling the world, from stranger to stranger, carrying one simple message.</p>
+    </div>
+
+    <div class="counter">
+      <div class="counter-item">
+        <span class="counter-number" id="cards-count">—</span>
+        <div class="counter-label">cards in the world</div>
+      </div>
+      <div class="counter-item">
+        <span class="counter-number" id="messages-count">—</span>
+        <div class="counter-label">notes left so far</div>
+      </div>
+    </div>
+
+    <span class="sparkle">✦ ✦ ✦</span>
+
+    <section class="home-section">
+      <h2>The story</h2>
+      <p>
+        This project started with a simple idea: what if a small object could carry kindness from one stranger to another — across cities, across countries — one hand at a time?
+      </p>
+      <p>
+        Each card is laser-engraved on aluminum, made to last. On the front: <em>remember you are loved</em>. On the back, a number and this website. When you find one, you can read its journey here, leave a note, and then — keep it, or pass it on.
+      </p>
+    </section>
+
+    <section class="home-section">
+      <h2>Found a card?</h2>
+      <p>Look for the number on the back. Type it into the address bar: <strong>youareloved.art/0001</strong> — or scan the QR code. Each card has its own page, its own story.</p>
+      <p>If your card doesn't have a number, <a href="mailto:hello@youareloved.art">reach out</a> and I'll add it.</p>
+    </section>
+
+    <section class="home-section">
+      <h2>Want a card?</h2>
+      <p>Cards are made in small batches and left in the world — on park benches, in libraries, coffee shops, anywhere life happens. They're always free. If you'd like to nominate someone who could use one, <a href="mailto:hello@youareloved.art">send me a note</a>.</p>
+    </section>
+
+    <span class="sparkle">✦ ✦ ✦</span>
+
+    <footer class="home-footer">
+      <p>Made with love · <a href="https://github.com/dkrupenn/youareloved">open source</a></p>
+    </footer>
+  </main>
+
+  <script>
+    fetch('/api/stats')
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('cards-count').textContent = data.cards ?? '0';
+        document.getElementById('messages-count').textContent = data.messages ?? '0';
+      })
+      .catch(() => {
+        document.getElementById('cards-count').textContent = '0';
+        document.getElementById('messages-count').textContent = '0';
+      });
+  </script>
 </body>
 </html>
