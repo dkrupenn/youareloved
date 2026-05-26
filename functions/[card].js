@@ -83,15 +83,6 @@ function renderPage(cardNumber, messages) {
 
     <span class="sparkle">✦ ✦ ✦</span>
 
-    <section class="journey">
-      <h2>This card's journey</h2>
-      <div class="messages">
-        ${renderMessages(messages)}
-      </div>
-    </section>
-
-    <span class="sparkle">✦ ✦ ✦</span>
-
     <section class="leave-note">
       <h2>Leave a note</h2>
       <p class="section-desc">Tell the next person who holds this card something — where you found it, how it made you feel, or just a kind thought. Notes are reviewed before they appear.</p>
@@ -116,6 +107,15 @@ function renderPage(cardNumber, messages) {
 
       <div id="form-success" class="hidden">
         <p>✦ Thank you. Your note will appear here once it's been reviewed — usually within a day.</p>
+      </div>
+    </section>
+
+    <span class="sparkle">✦ ✦ ✦</span>
+
+    <section class="journey">
+      <h2>This card's journey</h2>
+      <div class="messages">
+        ${renderMessages(messages)}
       </div>
     </section>
 
