@@ -9,24 +9,20 @@ export async function onRequestPost(context) {
   try { body = await request.json(); }
   catch { return json({ error: 'Invalid JSON' }, 400); }
 
-  const { id, action } = body;
-  if (!id || !['approve', 'reject'].includes(action)) {
-    return json({ error: 'Invalid request' }, 400);
-  }
-
-  const status = action === 'approve' ? 'approved' : 'rejected';
+  const { id } = body;
+  if (!id) return json({ error: 'Missing id' }, 400);
 
   try {
     const result = await env.DB.prepare(
-      `UPDATE messages SET status = ? WHERE id = ? AND status = 'pending'`
-    ).bind(status, id).run();
+      `DELETE FROM messages WHERE id = ? AND status = 'approved'`
+    ).bind(id).run();
 
     if (result.meta.changes === 0) {
-      return json({ error: 'Message not found or already actioned' }, 404);
+      return json({ error: 'Message not found' }, 404);
     }
     return json({ success: true });
   } catch {
-    return json({ error: 'Failed to update message' }, 500);
+    return json({ error: 'Failed to delete message' }, 500);
   }
 }
 
