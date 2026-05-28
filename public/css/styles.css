@@ -450,32 +450,27 @@ textarea {
   height: 260px;
   border-radius: 12px;
   border: 1px solid var(--border);
-  background: #f0ece6;
-  overflow: hidden;
-}
-
-/* Leaflet override — match our border radius */
-#card-map .leaflet-container {
-  border-radius: 12px;
-  font-family: 'Comfortaa', sans-serif;
+  background: #eee9e2;
 }
 
 /* Custom terracotta pin */
 .map-pin {
   background: var(--accent);
-  border: 2px solid #fff;
+  border: 2.5px solid #fff;
   border-radius: 50%;
-  box-shadow: 0 1px 6px rgba(181,112,91,0.45);
+  box-shadow: 0 1px 6px rgba(181,112,91,0.5);
 }
 
-/* Leaflet popup styling */
-#card-map .leaflet-popup-content-wrapper {
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(44,40,37,0.12);
-  font-family: 'Comfortaa', sans-serif;
-  font-size: 0.82rem;
+/* Leaflet popup */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px !important;
+  box-shadow: 0 2px 12px rgba(44,40,37,0.12) !important;
+  font-family: 'Comfortaa', sans-serif !important;
+  font-size: 0.82rem !important;
+  padding: 6px 12px !important;
 }
-#card-map .leaflet-popup-tip { background: #fff; }
+.leaflet-popup-content { margin: 6px 0 !important; }
+.leaflet-popup-tip-container { display: none; }
 
 .map-status {
   font-size: 0.75rem;
@@ -483,6 +478,55 @@ textarea {
   text-align: center;
   margin-top: 0.5rem;
   font-style: italic;
+}
+
+/* ── Share buttons ──────────────────────────── */
+
+.share-section { margin-bottom: 0; }
+
+.share-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin-top: 1.25rem;
+}
+
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-family: 'Comfortaa', sans-serif;
+  font-weight: 400;
+  font-size: 0.88rem;
+  color: var(--text);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.share-btn svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+
+.share-btn:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.share-copied,
+.share-copied:hover {
+  background: #edf5f0;
+  border-color: var(--success);
+  color: var(--success);
 }
 
 /* ── Featured notes (homepage) ──────────────── */
@@ -498,5 +542,6 @@ textarea {
   .home-hero h1 { font-size: 2rem; }
   .counter { gap: 2rem; }
   .counter-number { font-size: 2.2rem; }
-  #card-map { height: 220px; }
+  #card-map { height: 200px; }
+  .share-btn { font-size: 0.82rem; padding: 0.55rem 0.875rem; }
 }
