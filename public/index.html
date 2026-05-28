@@ -53,7 +53,14 @@
 
     <span class="sparkle">✦ ✦ ✦</span>
 
-    <section class="home-section">
+    <!-- Featured notes — loaded from /api/featured, hidden until JS runs -->
+    <section class="home-section" id="featured-section" style="display:none">
+      <h2>From the cards</h2>
+      <div id="featured-notes"></div>
+      <p class="featured-more"><a href="/messages">Read all notes →</a></p>
+    </section>
+
+    <section class="home-section" id="all-notes-link-section">
       <h2>All notes</h2>
       <p>Read every note left by people who found a card — from all over the world, on all the cards. <a href="/messages">Read them all →</a></p>
     </section>
@@ -64,6 +71,7 @@
   </main>
 
   <script>
+    // Live counter
     fetch('/api/stats')
       .then(r => r.json())
       .then(data => {
@@ -74,6 +82,43 @@
         document.getElementById('cards-count').textContent = '0';
         document.getElementById('messages-count').textContent = '0';
       });
+
+    // Featured notes
+    function escHtml(s) {
+      return String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    fetch('/api/featured')
+      .then(r => r.json())
+      .then(notes => {
+        if (!notes || notes.length === 0) return;
+
+        const container = document.getElementById('featured-notes');
+        container.innerHTML = notes.map(n => {
+          const parts = [];
+          if (n.first_name) parts.push(escHtml(n.first_name));
+          if (n.city)       parts.push(escHtml(n.city));
+
+          const metaInner = parts.length
+            ? parts.join(' <span class="dot">·</span> ') +
+              ' <span class="dot">·</span> <a href="/' + escHtml(n.card_number) + '">card #' + escHtml(n.card_number) + '</a>'
+            : '<a href="/' + escHtml(n.card_number) + '">card #' + escHtml(n.card_number) + '</a>';
+
+          return `<div class="message-card">
+            <p class="message-text">${escHtml(n.message)}</p>
+            <p class="message-meta">${metaInner}</p>
+          </div>`;
+        }).join('');
+
+        // Show the featured section and hide the plain "All notes" link section
+        document.getElementById('featured-section').style.display = '';
+        document.getElementById('all-notes-link-section').style.display = 'none';
+      })
+      .catch(() => { /* leave the static "All notes" section visible */ });
   </script>
 </body>
 </html>

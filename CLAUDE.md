@@ -43,9 +43,12 @@ functions/
   messages.js         ← Public messages feed /messages
   admin/
     logout.js         ← Clears session cookie → /admin/logout
+  og/
+    [card].js         ← GET /og/0001 → SVG Open Graph preview image
   api/
     submit.js         ← POST form → D1 pending + Resend email
     stats.js          ← GET card/message counts for homepage
+    featured.js       ← GET 3 random approved messages for homepage
     admin/
       queue.js        ← GET pending messages (auth required)
       action.js       ← POST approve/reject (auth required)
@@ -161,12 +164,23 @@ git commit --allow-empty -m "trigger redeploy" && git push origin main
 
 ---
 
-## What's next (Phase 2 — not started)
+## What's next (Phase 2 — complete)
 
-- [ ] World map on card pages (Leaflet + Nominatim geocoding)
-- [ ] "Featured notes" rotation on homepage
-- [ ] Open Graph image generator for social sharing previews
-- [ ] Cloudflare Access for admin (alternative to password form)
+- [x] World map on card pages (Leaflet + Nominatim geocoding)
+- [x] "Featured notes" rotation on homepage (`/api/featured` → 3 random approved notes)
+- [x] Open Graph image generator (`/og/:card` → SVG; works on iMessage, Slack, WhatsApp etc.)
+- [ ] Cloudflare Access for admin (alternative to password form — still future)
+
+### Phase 2 notes
+- Map: Leaflet 1.9.4 from CDN + OpenStreetMap tiles (free, no API key). Nominatim geocoding
+  happens client-side with 1100ms delay between requests to respect the usage policy.
+  Cities are embedded as JSON in a `<script type="application/json">` tag server-side.
+  Map only renders if at least one message has a city.
+- Featured notes: `functions/api/featured.js` returns 3 RANDOM() approved messages.
+  Homepage shows them if ≥1 exists; hides the static "All notes" link section when shown.
+- OG image: `functions/og/[card].js` returns an SVG (1200×630). SVG og:image works on most
+  platforms except Twitter/X. Twitter requires raster PNG — upgrade path is resvg-wasm
+  (needs a build step) or a third-party screenshot service.
 
 ## Phase 3 (future)
 

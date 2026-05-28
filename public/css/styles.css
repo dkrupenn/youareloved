@@ -439,9 +439,64 @@ textarea {
   font-size: 1rem;
 }
 
+/* ── Journey map ────────────────────────────── */
+
+.map-wrap {
+  position: relative;
+  margin-bottom: 1.75rem;
+}
+
+#card-map {
+  height: 260px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #f0ece6;
+  overflow: hidden;
+}
+
+/* Leaflet override — match our border radius */
+#card-map .leaflet-container {
+  border-radius: 12px;
+  font-family: 'Comfortaa', sans-serif;
+}
+
+/* Custom terracotta pin */
+.map-pin {
+  background: var(--accent);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 6px rgba(181,112,91,0.45);
+}
+
+/* Leaflet popup styling */
+#card-map .leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(44,40,37,0.12);
+  font-family: 'Comfortaa', sans-serif;
+  font-size: 0.82rem;
+}
+#card-map .leaflet-popup-tip { background: #fff; }
+
+.map-status {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* ── Featured notes (homepage) ──────────────── */
+
+.featured-more {
+  text-align: right;
+  margin-top: 0.25rem;
+  font-size: 0.88rem;
+}
+
 @media (max-width: 480px) {
   h1 { font-size: 1.8rem; }
   .home-hero h1 { font-size: 2rem; }
   .counter { gap: 2rem; }
   .counter-number { font-size: 2.2rem; }
+  #card-map { height: 220px; }
 }

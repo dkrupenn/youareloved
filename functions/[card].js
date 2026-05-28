@@ -59,6 +59,18 @@ function renderPage(cardNumber, messages) {
     ? 'No notes yet — yours could be the first.'
     : `${count} note${count === 1 ? '' : 's'} so far.`;
 
+  // Extract unique cities (preserve order, oldest first)
+  const seen = new Set();
+  const cities = [];
+  for (const m of messages) {
+    const city = m.city && m.city.trim();
+    if (city && !seen.has(city.toLowerCase())) {
+      seen.add(city.toLowerCase());
+      cities.push(city);
+    }
+  }
+  const showMap = cities.length > 0;
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -66,10 +78,19 @@ function renderPage(cardNumber, messages) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Card #${cardNumber} · You Are Loved</title>
   <link rel="stylesheet" href="/css/styles.css">
+  ${showMap ? `<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">` : ''}
   <meta name="description" content="A card traveling the world, carrying kindness from stranger to stranger. ${journeyDesc}">
   <meta property="og:title" content="Card #${cardNumber} · You Are Loved">
   <meta property="og:description" content="${journeyDesc} Follow this card's journey.">
   <meta property="og:url" content="https://youareloved.art/${cardNumber}">
+  <meta property="og:image" content="https://youareloved.art/og/${cardNumber}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Card #${cardNumber} · You Are Loved">
+  <meta name="twitter:description" content="${journeyDesc}">
+  <meta name="twitter:image" content="https://youareloved.art/og/${cardNumber}">
 </head>
 <body>
   <main class="card-page">
@@ -114,6 +135,15 @@ function renderPage(cardNumber, messages) {
 
     <section class="journey">
       <h2>This card's journey</h2>
+
+      ${showMap ? `
+      <div class="map-wrap">
+        <div id="card-map"></div>
+        <p class="map-status" id="map-status">Finding locations…</p>
+      </div>
+      <script id="card-cities" type="application/json">${JSON.stringify(cities)}</script>
+      ` : ''}
+
       <div class="messages">
         ${renderMessages(messages)}
       </div>
@@ -136,7 +166,9 @@ function renderPage(cardNumber, messages) {
 
   </main>
 
+  ${showMap ? `<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN2GqAA=" crossorigin=""></script>` : ''}
   <script>
+    // Character counter
     const textarea = document.querySelector('textarea[name="message"]');
     const counter = document.querySelector('.char-count');
     textarea.addEventListener('input', () => {
@@ -144,6 +176,7 @@ function renderPage(cardNumber, messages) {
       counter.textContent = left + ' character' + (left === 1 ? '' : 's') + ' left';
     });
 
+    // Form submission
     document.getElementById('note-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const form = e.target;
@@ -168,6 +201,75 @@ function renderPage(cardNumber, messages) {
         alert('Something went wrong. Please try again.');
       }
     });
+
+    ${showMap ? `
+    // Map — geocode cities and drop pins
+    (async () => {
+      const cities = JSON.parse(document.getElementById('card-cities').textContent);
+      const statusEl = document.getElementById('map-status');
+
+      const markerIcon = L.divIcon({
+        className: 'map-pin',
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+        popupAnchor: [0, -10],
+      });
+
+      const map = L.map('card-map', {
+        scrollWheelZoom: false,
+        zoomControl: true,
+        attributionControl: true,
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>',
+        maxZoom: 18,
+      }).addTo(map);
+
+      map.setView([20, 10], 2);
+
+      const bounds = [];
+      const geocoded = new Map(); // city → [lat, lng]
+
+      for (let i = 0; i < cities.length; i++) {
+        const city = cities[i];
+        const key = city.toLowerCase().trim();
+        if (geocoded.has(key)) {
+          bounds.push(geocoded.get(key));
+          continue;
+        }
+
+        try {
+          const url = 'https://nominatim.openstreetmap.org/search?' +
+            new URLSearchParams({ q: city, format: 'json', limit: '1', 'accept-language': 'en' });
+          const res = await fetch(url);
+          const data = await res.json();
+          if (data.length > 0) {
+            const lat = parseFloat(data[0].lat);
+            const lng = parseFloat(data[0].lon);
+            geocoded.set(key, [lat, lng]);
+            bounds.push([lat, lng]);
+            L.marker([lat, lng], { icon: markerIcon })
+              .bindPopup('<strong>' + city + '</strong>')
+              .addTo(map);
+          }
+        } catch { /* skip on network error */ }
+
+        // Respect Nominatim's 1 req/sec usage policy
+        if (i < cities.length - 1) {
+          await new Promise(r => setTimeout(r, 1100));
+        }
+      }
+
+      statusEl.remove();
+
+      if (bounds.length === 1) {
+        map.setView(bounds[0], 9);
+      } else if (bounds.length > 1) {
+        map.fitBounds(L.latLngBounds(bounds), { padding: [28, 28], maxZoom: 10 });
+      }
+    })();
+    ` : ''}
   </script>
 </body>
 </html>`;
