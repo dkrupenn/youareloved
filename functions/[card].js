@@ -182,7 +182,6 @@ function renderPage(cardNumber, messages) {
 
     <section class="share-section">
       <h2>Share this card</h2>
-      <p class="section-desc">Send this card's page to someone who might need it — or just spread the love.</p>
       <div class="share-row">
         <a href="${waHref}" class="share-btn" target="_blank" rel="noopener" aria-label="Share on WhatsApp">
           ${ICON_WHATSAPP}<span>WhatsApp</span>
