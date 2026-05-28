@@ -294,6 +294,8 @@ function renderPage(cardNumber, messages) {
 
         for (let i = 0; i < cities.length; i++) {
           const city = cities[i];
+          if (!city || city.trim().length < 2) continue; // skip empty / garbage
+
           const key  = city.toLowerCase().trim();
 
           if (geocached.has(key)) {
@@ -303,7 +305,10 @@ function renderPage(cardNumber, messages) {
               const res  = await fetch('https://nominatim.openstreetmap.org/search?' +
                 new URLSearchParams({ q: city, format: 'json', limit: '1', 'accept-language': 'en' }));
               const data = await res.json();
-              if (data.length) {
+              // Only accept results that look like real populated places.
+              // Importance ≥ 0.25 filters out obscure hamlets and gibberish matches
+              // (e.g. "asdf" might match an OSM micro-feature with importance ~0.05).
+              if (data.length && (data[0].importance ?? 0) >= 0.25) {
                 const ll = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
                 geocached.set(key, ll);
                 bounds.push(ll);

@@ -8,7 +8,7 @@ export async function onRequestGet(context) {
        FROM messages
        WHERE status = 'approved'
        ORDER BY RANDOM()
-       LIMIT 3`
+       LIMIT 1`
     ).all();
 
     return new Response(JSON.stringify(results), {
